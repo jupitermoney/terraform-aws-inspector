@@ -4,16 +4,28 @@ terraform {
     aws = "~> 2.30"
   }
 }
+data "aws_region" "current" {
+}
+
 locals {
   enabled_count   = var.enabled ? 1 : 0
   scheduled_count = var.enable_scheduled_event && var.enabled ? 1 : 0
-  assessment_ruleset = compact([
-    var.ruleset_cve ? "arn:aws:inspector:us-east-1:316112463485:rulespackage/0-gEjTy7T7" : "",
-    var.ruleset_cis ? "arn:aws:inspector:us-east-1:316112463485:rulespackage/0-rExsr2X8" : "",
-    var.ruleset_security_best_practices ? "arn:aws:inspector:us-east-1:316112463485:rulespackage/0-R01qwB5Q" : "",
-    var.ruleset_network_reachability ? "arn:aws:inspector:us-east-1:316112463485:rulespackage/0-PmNV0Tcd" : "",
+  assessment_ruleset = {
+    us-east-1 = compact([
+      var.ruleset_cve ? "arn:aws:inspector:us-east-1:316112463485:rulespackage/0-gEjTy7T7" : "",
+      var.ruleset_cis ? "arn:aws:inspector:us-east-1:316112463485:rulespackage/0-rExsr2X8" : "",
+      var.ruleset_security_best_practices ? "arn:aws:inspector:us-east-1:316112463485:rulespackage/0-R01qwB5Q" : "",
+      var.ruleset_network_reachability ? "arn:aws:inspector:us-east-1:316112463485:rulespackage/0-PmNV0Tcd" : "",
     ]
   )
+    ap-south-1 = compact([
+      var.ruleset_cve ? "arn:aws:inspector:ap-south-1:162588757376:rulespackage/0-LqnJE9dO" : "",
+      var.ruleset_cis ? "arn:aws:inspector:ap-south-1:162588757376:rulespackage/0-PSUlX14m" : "",
+      var.ruleset_security_best_practices ? "arn:aws:inspector:ap-south-1:162588757376:rulespackage/0-fs0IZZBj" : "",
+      var.ruleset_network_reachability ? "arn:aws:inspector:ap-south-1:162588757376:rulespackage/0-EhMQZy6C" : "",
+    ]
+  )
+}
 }
 
 data "aws_iam_policy_document" "inspector_event_role_policy" {
@@ -39,7 +51,9 @@ resource "aws_inspector_assessment_template" "assessment" {
   name               = "${var.name_prefix}-assessment-template"
   target_arn         = var.enabled ? aws_inspector_assessment_target.assessment[0].arn : ""
   duration           = var.assessment_duration
-  rules_package_arns = local.assessment_ruleset
+  rules_package_arns = flatten([
+    local.assessment_ruleset[data.aws_region.current.name]
+  ])
 }
 
 resource "aws_iam_role" "inspector_event_role" {
