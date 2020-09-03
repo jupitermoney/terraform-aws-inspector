@@ -22,7 +22,7 @@ locals {
       var.ruleset_cve ? "arn:aws:inspector:ap-south-1:162588757376:rulespackage/0-LqnJE9dO" : "",
       var.ruleset_cis ? "arn:aws:inspector:ap-south-1:162588757376:rulespackage/0-PSUlX14m" : "",
       var.ruleset_security_best_practices ? "arn:aws:inspector:ap-south-1:162588757376:rulespackage/0-fs0IZZBj" : "",
-      var.ruleset_network_reachability ? "arn:aws:inspector:ap-south-1:162588757376:rulespackage/0-EhMQZy6C" : "",
+      var.ruleset_network_reachability ? "arn:aws:inspector:ap-south-1:162588757376:rulespackage/0-YxKfjFu1" : "",
     ]
   )
 }
